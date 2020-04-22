@@ -58,7 +58,7 @@ const PlaylistPopulate = props => {
   const [buildPlaylist, { data }] = useMutation(BUILD_PLAYLIST)
   const onSubmit = values => {
     const variables = {...values, playlistId: +props.id, rankPosition: +values.rankPosition }
-    console.log(variables, typeof variables.playlistId, typeof variables.rankPosition)
+    console.log(variables)
     const res = buildPlaylist({ variables })
     console.log('success ', res)
   }

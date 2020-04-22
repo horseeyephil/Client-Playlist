@@ -1,45 +1,45 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Link } from "react-router-dom"
 import { Form, Field } from 'react-final-form'
-import { gql, useMutation } from '@apollo/client'
-import client from '../apollo-client'
+import { gql, useQuery, useMutation } from '@apollo/client'
 
-const query = gql`{ 
-  user(username: "stav") {
+const GET_USER_PLAYLISTS = gql`query getUserPlaylists($username: String!) { 
+  user(username: $username) {
     id email
     playlists {
       id title description
     }
   }
 }`
-const CREATE_PLAYLIST = gql` 
-  mutation CPlaylist($title: String! $description: String!) {
-    createPlaylist(title: $title description: $description creatorId: 1) {
-      title description creator { name}
+const CREATE_PLAYLIST = gql`
+  mutation CPlaylist($creatorId: Int! $title: String! $description: String!) {
+    createPlaylist(title: $title description: $description creatorId: $creatorId) {
+      title description creator { name }
     }
   }
 `
+export const MatchPlaylists = props => {
+  const username = props.match.params.username
+  const { data, loading } = useQuery(GET_USER_PLAYLISTS, { variables: { username }})
+  if(loading) return <div>Loading</div>
+  return <Playlists playlists={data.user.playlists} authedUser={props.authedUser} />
+}
+
 const Playlists = props => {
-  const [state, setState] = useState([])
-  useEffect(_ => {
-    client.query({ query }).then(({ data }) => {
-      console.log(data)
-      setState(data.user.playlists)
-    })
-  }, [])
   return <div>
-    {state.map(playlist => <li>
+    {props.playlists.map(playlist => <li>
       <Link to={`/list/${playlist.id}`}>{playlist.title}</Link>
       <p>{playlist.description}</p>
     </li>)}
-    <PlaylistCreate />
+    <PlaylistCreate authedUser={props.authedUser} />
   </div>
 }
 
 const PlaylistCreate = props => {
   const [sendPlaylist, { data }] = useMutation(CREATE_PLAYLIST)
 
-  const onSubmit = variables => {
+  const onSubmit = fieldData => {
+    const variables = { ...fieldData, creatorId: props.authedUser.id }
     const res = sendPlaylist({ variables })
   }
 

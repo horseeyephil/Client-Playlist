@@ -1,4 +1,4 @@
 import Playlist, { MatchPlaylist } from './Playlist'
-import Playlists from './Playlists'
+import Playlists, { MatchPlaylists } from './Playlists'
 
-export {MatchPlaylist, Playlist, Playlists}
+export {MatchPlaylist, MatchPlaylists, Playlist, Playlists}
